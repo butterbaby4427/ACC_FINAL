@@ -8,13 +8,12 @@ function preload(){
 }
 
 function setup() {
-  ready = document.createElement("INPUT");
-  ready.setAttribute("type", "radio");
+  ready = document.getElementById("ready");
   ready.onclick = readyPressed;
-  createCanvas(windowWidth, windowHeight-25);
+  //createCanvas(windowWidth, windowHeight-25);
   // HMMMM.....
-  socket = io.connect('http://157.230.83.178:3000');
-  background(220);
+  socket = io.connect('localhost:3001');
+  //background(220);
 
   // handle the broadcast calls coming from the server
   socket.on('connected',connected);
@@ -27,7 +26,8 @@ function connected(){
   socket.emit("connected",rumble);
 }
 
-readyPressed(){
-  rumble = ready.value;
+function readyPressed(){
+  console.log(ready.checked);
+  rumble = ready.checked;
   socket.emit("checkRumble",rumble);
 }

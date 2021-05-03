@@ -5,7 +5,7 @@ var app = express();
 var users = [];
 
 // create our server
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3001;
 var server = app.listen(port);
 
 // have my application use files in the public folder
@@ -26,6 +26,7 @@ function newConnection(socket){
     socket.on('checkRumble', checkRumble)
 
     function checkRumble(rumble){
+        // console.log(users);
         if (rumble === true){
             for(var i = 0; i<users.length; i++){
                 if (socket === users[i].socket){
@@ -51,7 +52,11 @@ function newDisconnection(socket){
     }
 }
 
-class user(){
+function matchMake(){
+    
+}
+
+class user{
     constructor(socket,rumble){
         this.socket = socket;
         this.rumble = rumble;
