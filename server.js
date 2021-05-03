@@ -1,13 +1,8 @@
-// backend code
-// ie --> server code
-
 console.log("My server is running");
 
 var express = require('express');
-
-// app --> application
-// using the constructor to create an express app
 var app = express();
+var users = [];
 
 // create our server
 var port = process.env.PORT || 3000;
@@ -15,30 +10,50 @@ var server = app.listen(port);
 
 // have my application use files in the public folder
 app.use(express.static('public'));
-
 var socket = require('socket.io');
 
 // create a variable that keeps track of inputs and outputs
 var io = socket(server);
-
-// set up a connection event - ie new car of the highway lane
-// second parameter - callback
 io.sockets.on('connection', newConnection);
+io.sockets.on('disconnect', newDisconnection);
 
 function newConnection(socket){
-    socket.emit('yourHue', Math.random()*100);
+    users.push(new user(socket,false));
+    socket.emit('connected');
     console.log("new connection! " + socket.id);
 
-    socket.on('circle', mouseMsg);
-    socket.on('emoji', emojiMsg);
+    socket.on('connected', checkRumble);
+    socket.on('checkRumble', checkRumble)
 
-    function mouseMsg(data){
-        // console.log(data);
-        socket.broadcast.emit('circle', data);
+    function checkRumble(rumble){
+        if (rumble === true){
+            for(var i = 0; i<users.length; i++){
+                if (socket === users[i].socket){
+                    users[i].rumble = true;
+                }
+            }
+        } else{
+            for(var i = 0; i<users.length; i++){
+                if (socket === users[i].socket){
+                    users[i].rumble = false;
+                }
+            }
+        }
     }
+}
 
-    function emojiMsg(data){
-        // console.log(data);
-        socket.broadcast.emit('emoji', data);
+function newDisconnection(socket){
+    console.log("socket disconnected: "+socket.id);
+    for(var i = 0; i<users.length; i++){
+        if (socket === users[i].socket){
+            users.splice(i,1);
+        }
+    }
+}
+
+class user(){
+    constructor(socket,rumble){
+        this.socket = socket;
+        this.rumble = rumble;
     }
 }
