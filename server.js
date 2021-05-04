@@ -3,6 +3,8 @@ console.log("My server is running");
 var express = require('express');
 var app = express();
 var users = [];
+var matches = [];
+var tempPlayer;
 
 // create our server
 var port = process.env.PORT || 3001;
@@ -11,6 +13,8 @@ var server = app.listen(port);
 // have my application use files in the public folder
 app.use(express.static('public'));
 var socket = require('socket.io');
+
+setInterval(matchMake,1000*10);
 
 // create a variable that keeps track of inputs and outputs
 var io = socket(server);
@@ -23,10 +27,10 @@ function newConnection(socket){
     console.log("new connection! " + socket.id);
 
     socket.on('connected', checkRumble);
-    socket.on('checkRumble', checkRumble)
+    socket.on('checkRumble', checkRumble);
 
     function checkRumble(rumble){
-        // console.log(users);
+        // THIS CHECKS OUT, MOVE ON
         if (rumble === true){
             for(var i = 0; i<users.length; i++){
                 if (socket === users[i].socket){
@@ -52,13 +56,34 @@ function newDisconnection(socket){
     }
 }
 
-function matchMake(){
-    
+function matchMake(){ //THIS CHECKS OUT -- MOVE ON
+    tempPlayer = null;
+    for(var i = 0; i < users.length; i++){
+        if (users[i].rumble===true){
+            if(tempPlayer === null){
+                tempPlayer = users[i].socket;
+            } else {
+                matches.push(new match(tempPlayer,users[i].socket));
+                tempPlayer = null;
+            }
+        }
+    }
+    for (var i = 0; i<matches.length; i++){
+        io.to(matches[i].player1.id).emit("fight");
+        io.to(matches[i].player2.id).emit("fight");
+    }
 }
 
 class user{
     constructor(socket,rumble){
         this.socket = socket;
         this.rumble = rumble;
+    }
+}
+
+class match{
+    constructor(player1,player2){
+        this.player1=player1;
+        this.player2=player2;
     }
 }
