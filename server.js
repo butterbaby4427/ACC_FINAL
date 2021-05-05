@@ -28,6 +28,8 @@ function newConnection(socket){
 
     socket.on('connected', checkRumble);
     socket.on('checkRumble', checkRumble);
+    socket.on("fighting", disableRumble);
+    socket.on("fightDone", enableRumble);
 
     function checkRumble(rumble){
         // THIS CHECKS OUT, MOVE ON
@@ -45,6 +47,21 @@ function newConnection(socket){
             }
         }
     }
+    function disableRumble(){
+        console.log("rumble disabled");
+        for(var i = 0; i<users.length; i++){
+            if (socket === users[i].socket){
+                users[i].rumble = false;
+            }
+        }
+    }
+    function enableRumble(){
+        for(var i = 0; i<users.length; i++){
+            if (socket === users[i].socket){
+                users[i].rumble = true;
+            }
+        }
+    }
 }
 
 function newDisconnection(socket){
@@ -57,6 +74,7 @@ function newDisconnection(socket){
 }
 
 function matchMake(){ //THIS CHECKS OUT -- MOVE ON
+    matches = [];
     tempPlayer = null;
     for(var i = 0; i < users.length; i++){
         if (users[i].rumble===true){
