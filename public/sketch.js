@@ -6,6 +6,8 @@ var socket;
 var rumble = false;
 var ready;
 var canvas;
+var enemyID;
+var result;
 
 var rumbling = false;
 var hand;
@@ -41,6 +43,7 @@ function setup() {
   socket.on('connected',connected);
 
   socket.on('fight',fight);
+  socket.on('result',getResult);
 }
 
 function draw() {
@@ -87,6 +90,9 @@ function draw() {
         scene++;
         jankenpon();
       }
+    case 2: 
+      text(result, width/2, height/2);
+      break;
   }
 }
 
@@ -97,7 +103,12 @@ function connected(){
 }
 
 function jankenpon(){
-  socket.emit("jankenpon",hand);
+  canvas.style("display","none");
+  var dataToSend = {
+    hand: hand,
+    enemyID: enemyID
+  }
+  socket.emit("jankenpon",dataToSend);
 }
 
 function readyPressed(){
@@ -106,13 +117,19 @@ function readyPressed(){
   socket.emit("checkRumble",rumble);
 }
 
-function fight(){
+function fight(opponent){
   socket.emit("fighting");
   console.log("fighting");
   canvas.style("display","block");
   scene = 0;
   timer = 3;
   hand = null;
+  enemyID = opponent;
+}
+
+function getResult(data){
+  canvas.style("display","block");
+  result = data;
 }
 
 function notFight(){

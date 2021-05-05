@@ -1,9 +1,11 @@
 console.log("My server is running");
 
 var express = require('express');
+const { finished } = require('node:stream');
 var app = express();
 var users = [];
 var matches = [];
+var finishedMatches = [];
 var tempPlayer;
 
 // create our server
@@ -30,6 +32,7 @@ function newConnection(socket){
     socket.on('checkRumble', checkRumble);
     socket.on("fighting", disableRumble);
     socket.on("fightDone", enableRumble);
+    socket.on("jankenpon", jankenpon);
 
     function checkRumble(rumble){
         // THIS CHECKS OUT, MOVE ON
@@ -62,6 +65,28 @@ function newConnection(socket){
             }
         }
     }
+    function jankenpon(data){
+        var found = false;
+        for(var i = 0; i<users.length; i++){
+            if (users[i].id === data.enemyID){
+                tempPlayer = users[i];
+            }
+        }
+        found = false;
+        for(var i = 0; i < finishedMatches.length; i++){
+            if (finishedMatches[i].player1 === tempPlayer){
+                found = true;
+                finishedMatches[i].player2 === socket;
+                finishedMatches[i].player2hand = data.hand;
+                io.to(finishedMatches[i].player1.id).emit("result",jankenponLogic(finishedMatches[i].player1hand,finishedMatches[i].player2hand));
+                io.to(finishedMatches[i].player2.id).emit("result",jankenponLogic(finishedMatches[i].player2hand,finishedMatches[i].player1hand));
+            } 
+        }
+        if (found === false){
+            finishedMatches.push(new match(socket,null,data.hand));
+        }
+        console.log(data.enemyID + ": "+data.hand);
+    }
 }
 
 function newDisconnection(socket){
@@ -87,9 +112,55 @@ function matchMake(){ //THIS CHECKS OUT -- MOVE ON
         }
     }
     for (var i = 0; i<matches.length; i++){
-        io.to(matches[i].player1.id).emit("fight");
-        io.to(matches[i].player2.id).emit("fight");
+        io.to(matches[i].player1.id).emit("fight",matches[i].player2.id);
+        io.to(matches[i].player2.id).emit("fight",matches[i].player1.id);
     }
+}
+
+function jankenponLogic(hand1,hand2){
+    var returnValue = "DRAW";
+    switch(hand1){
+        case "rock":
+            switch(hand2){
+                case "rock":
+                    returnValue = "DRAW";
+                    break;
+                case "scissors":
+                    returnValue = "WINNER";
+                    break;
+                case "paper":
+                    returnValue = "LOSER";
+                    break;
+            }
+            break;
+        case "scissors":
+            switch(hand2){
+                case "rock":
+                    returnValue = "LOSER";
+                    break;
+                case "scissors":
+                    returnValue = "DRAW";
+                    break;
+                case "paper":
+                    returnValue = "WINNER";
+                    break;
+            }
+            break;
+        case "paper":
+            switch(hand2){
+                case "rock":
+                    returnValue = "WINNER";
+                    break;
+                case "scissors":
+                    returnValue = "LOSER";
+                    break;
+                case "paper":
+                    returnValue = "DRAW";
+                    break;
+            }
+            break;
+    }
+    return returnValue;
 }
 
 class user{
@@ -100,8 +171,10 @@ class user{
 }
 
 class match{
-    constructor(player1,player2){
+    constructor(player1,player2,player1hand = ""){
         this.player1=player1;
+        this.player1hand = "";
         this.player2=player2;
+        this.player2hand = "";
     }
 }
