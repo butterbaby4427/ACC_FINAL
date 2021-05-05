@@ -57,7 +57,7 @@ function draw() {
         timer --;
       }
       if (timer <= 0) {
-        timer = 15;
+        timer = 10;
         scene++;
       }
       break;
@@ -86,7 +86,7 @@ function draw() {
         timer --;
       }
       if (timer <= 0) {
-        timer = 15;
+        timer = 10;
         scene++;
         jankenpon();
       }
@@ -128,6 +128,7 @@ function fight(opponent){
 }
 
 function getResult(data){
+  console.log("getting result");
   canvas.style("display","block");
   result = data;
 }

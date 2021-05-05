@@ -1,26 +1,26 @@
 {
-  "name": "class16_demo",
+  "name": "",
   "version": "1.0.0",
-  "description": "Making a drawing app to use with friends",
+  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/katsully/class16-demo.git"
+    "url": ""
   },
   "keywords": [
     "drawing",
     "p5",
     "funtimes"
   ],
-  "author": "Kat Sullivan",
+  "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/katsully/class16-demo/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/katsully/class16-demo#readme",
+  "homepage": "",
   "dependencies": {
     "express": "^4.17.1",
     "express-session": "^1.17.1",

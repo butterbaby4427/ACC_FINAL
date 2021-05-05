@@ -1,7 +1,7 @@
 console.log("My server is running");
 
 var express = require('express');
-const { finished } = require('node:stream');
+// const { finished } = require('node:stream');
 var app = express();
 var users = [];
 var matches = [];
@@ -68,15 +68,15 @@ function newConnection(socket){
     function jankenpon(data){
         var found = false;
         for(var i = 0; i<users.length; i++){
-            if (users[i].id === data.enemyID){
-                tempPlayer = users[i];
+            if (users[i].socket.id === data.enemyID){
+                tempPlayer = users[i].socket;
             }
         }
         found = false;
         for(var i = 0; i < finishedMatches.length; i++){
             if (finishedMatches[i].player1 === tempPlayer){
                 found = true;
-                finishedMatches[i].player2 === socket;
+                finishedMatches[i].player2 = socket;
                 finishedMatches[i].player2hand = data.hand;
                 io.to(finishedMatches[i].player1.id).emit("result",jankenponLogic(finishedMatches[i].player1hand,finishedMatches[i].player2hand));
                 io.to(finishedMatches[i].player2.id).emit("result",jankenponLogic(finishedMatches[i].player2hand,finishedMatches[i].player1hand));
@@ -85,7 +85,6 @@ function newConnection(socket){
         if (found === false){
             finishedMatches.push(new match(socket,null,data.hand));
         }
-        console.log(data.enemyID + ": "+data.hand);
     }
 }
 
@@ -118,6 +117,7 @@ function matchMake(){ //THIS CHECKS OUT -- MOVE ON
 }
 
 function jankenponLogic(hand1,hand2){
+    console.log(hand1+" :v "+hand2);
     var returnValue = "DRAW";
     switch(hand1){
         case "rock":
@@ -173,7 +173,7 @@ class user{
 class match{
     constructor(player1,player2,player1hand = ""){
         this.player1=player1;
-        this.player1hand = "";
+        this.player1hand = player1hand;
         this.player2=player2;
         this.player2hand = "";
     }
