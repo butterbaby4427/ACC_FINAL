@@ -1,12 +1,12 @@
 console.log("My server is running");
 
 var express = require('express');
-// const { finished } = require('node:stream');
 var app = express();
 var users = [];
 var matches = [];
 var finishedMatches = [];
 var tempPlayer;
+
 
 // create our server
 var port = process.env.PORT || 3001;
@@ -22,6 +22,29 @@ setInterval(matchMake,1000*10);
 var io = socket(server);
 io.sockets.on('connection', newConnection);
 io.sockets.on('disconnect', newDisconnection);
+
+var Datastore = require('nedb');
+var db = new Datastore({filename: "projects.json", autoload: true});
+app.set("view engine", "ejs");
+
+// app.get('/', function(req, res) {
+
+// });
+
+// app.get('/banana', function(req, res) {
+//     // var dataWrapper;
+//     db.find({}, function(err, docs) {
+//         // console.log(docs);
+//         // dataWrapper = {data: docs};
+//         // console.log(dataWrapper);
+//         res.render("projects.ejs",{person: docs});
+//     });
+// });
+
+// app.get('/templatetest', function(req, res) {
+//     var hello = {person: [{"name":"Virtual Physicality","description":"Using PoseNet--a machine learning model that reads camera data and guesses where there are key points denoting the position of human body parts--I created a sketch that would read camera data from the user, and use the position of their head and hands to interact with a 3D environment being rendered in real time. I plugged position data from the users’ body so that the 3D camera would translate their head movements to emulate actual 3D movement within the environment. This mimics the way we interact with actual objects in real life, and invites the user to take part in and explore the interaction. In doing so, this allows the user to explore a relationship they usually only share with physical objects, and share it with a virtual environment. Try it <a href='https://editor.p5js.org/butterbaby4427/full/nQAHyB9L5'>here","date":"January, 2020"},{"name":"Motion Graphics","description":"Beginning the summer of 2020, I started putting aside some free time to design and render motion graphics animations in Blender on my laptop. To hone the software skills I’ve developed at school, I’ve been learning 3D design and shading by creating short animations inspired by nature, mathematics, and code. see more <a href='https://www.instagram.com/angelotiu/'>here</a>","date":"January, 2020"}]};
+//     res.render('projects.ejs', hello);
+// });
 
 function newConnection(socket){
     users.push(new user(socket,false));
@@ -117,7 +140,6 @@ function matchMake(){ //THIS CHECKS OUT -- MOVE ON
 }
 
 function jankenponLogic(hand1,hand2){
-    console.log(hand1+" :v "+hand2);
     var returnValue = "DRAW";
     switch(hand1){
         case "rock":

@@ -26,6 +26,19 @@ function mouseClicked(){
     }
   }
 }
+
+function getData(data){
+  fetch('/banana').then(function(response) {
+    return response.json();
+}).then(function(data) {
+  console.log(data);
+});
+}
+
+function populateProjects(){
+  
+}
+
 function setup() {
   
   noStroke();
@@ -41,7 +54,6 @@ function setup() {
 
   // handle the broadcast calls coming from the server
   socket.on('connected',connected);
-
   socket.on('fight',fight);
   socket.on('result',getResult);
 }
@@ -112,6 +124,7 @@ function jankenpon(){
 }
 
 function readyPressed(){
+  getData();
   console.log(ready.checked);
   rumble = ready.checked;
   socket.emit("checkRumble",rumble);
